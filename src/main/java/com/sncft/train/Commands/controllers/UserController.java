@@ -16,6 +16,7 @@ import java.util.Collections;
 
 @RestController
 @RequestMapping("/api/v1/users")
+@CrossOrigin(origins = "http://localhost:4200")
 public class UserController {
 
     private final Keycloak keycloak;
@@ -59,10 +60,71 @@ public class UserController {
         dbUser.setFirstName(request.firstName);
         dbUser.setLastName(request.lastName);
         dbUser.setEmail(request.email);
-        dbUser.setPassword(request.password); // You may want to encrypt the password before storing it
+        dbUser.setPassword(request.password);
 
         userRepository.save(dbUser);
 
         return "Status: " + response.getStatus();
     }
+
+    @PostMapping("/login")
+    public String login(@RequestBody CreateUserRequest request) {
+        try {
+            Keycloak keycloakLogin = KeycloakBuilder.builder()
+                    .serverUrl("http://localhost:9072")
+                    .realm("oauth-train-realm")
+                    .clientId("sahar")
+                    .clientSecret("6PrXXVPSZZtDdUQE7REd1S3JZ4PMhZsM")
+                    .username(request.username)
+                    .password(request.password)
+                    .grantType("password")
+                    .build();
+
+            String token = keycloakLogin.tokenManager().getAccessTokenString();
+            return "Access Token: " + token;
+
+        } catch (Exception e) {
+            return "Login failed: " + e.getMessage();
+        }
+    }
+
+    @PutMapping("/{userId}")
+    public String updateUser(@PathVariable String userId, @RequestBody CreateUserRequest request) {
+        try {
+            UserRepresentation user = keycloak.realm(realm).users().get(userId).toRepresentation();
+
+            user.setFirstName(request.firstName);
+            user.setLastName(request.lastName);
+            user.setEmail(request.email);
+
+            keycloak.realm(realm).users().get(userId).update(user);
+
+            User dbUser = userRepository.findById(Long.valueOf(userId)).orElse(null);
+            if (dbUser != null) {
+                dbUser.setFirstName(request.firstName);
+                dbUser.setLastName(request.lastName);
+                dbUser.setEmail(request.email);
+                userRepository.save(dbUser);
+            }
+
+            return "User updated successfully.";
+        } catch (Exception e) {
+            return "Update failed: " + e.getMessage();
+        }
+    }
+    @DeleteMapping("/{userId}")
+    public String deleteUser(@PathVariable String userId) {
+        try {
+            // Delete from Keycloak
+            keycloak.realm(realm).users().get(userId).remove();
+
+            // Delete from DB
+            userRepository.deleteById(Long.valueOf(userId));
+
+            return "User deleted successfully.";
+        } catch (Exception e) {
+            return "Deletion failed: " + e.getMessage();
+        }
+    }
+
 }
