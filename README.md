@@ -16,10 +16,11 @@ Build and run the application using Docker Compose:
 
    ```bash
    docker-compose build
-   docker-compose up -d API Endpoints
-Add Announcement: POST /annonce/addannonce (Parameters: Annonce JSON, optional file)
-Get Announcement by ID: GET /annonce/{id}
-Get All Announcements: GET /annonce/annonces
-Update Announcement: PATCH /annonce (Parameters: Annonce JSON, optional file)
-Delete Announcement: DELETE /annonce/{id}
-Search Announcement by Title: GET /annonce/searchAnnonce/{titreAnnonce}
+   docker-compose up -d API Endpoints  
+
+### Add Announcement: POST /annonce/addannonce (Parameters: Annonce JSON, optional file)
+### Get Announcement by ID: GET /annonce/{id}
+ ### Get All Announcements: GET /annonce/annonces
+### Update Announcement: PATCH /annonce (Parameters: Annonce JSON, optional file)
+### Delete Announcement: DELETE /annonce/{id}
+### Search Announcement by Title: GET /annonce/searchAnnonce/{titreAnnonce}
