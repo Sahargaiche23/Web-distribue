@@ -27,15 +27,32 @@ spring:
           issuer-uri: http://localhost:9072/realms/oauth-train-realm
           jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
 
+  mail:
+    host: smtp.gmail.com
+    port: 465
+    protocol: smtps
+    username: samargaiche82@gmail.com
+    password: rqpz lqrf squo mahc
+
+    properties:
+      mail:
+        transport:
+          protocol: smtps
+        smtps:
+          auth: true
+          starttls:
+            enable: true
+          timeout: 8000
+
   cloud:
     compatibility-verifier:
       enabled: false
     config:
-      enabled: true            # <-- Ajouté
-      uri: http://localhost:8880  # <-- Ajouté
+      enabled: true
+      uri: http://localhost:8880
 
   config:
-    import: optional:configserver:http://localhost:8880/  # <-- Ajouté
+    import: optional:configserver:http://localhost:8880/
 
 eureka:
   client:
@@ -58,3 +75,11 @@ keycloak:
   client-id: sahar
   client-secret: 6PrXXVPSZZtDdUQE7REd1S3JZ4PMhZsM
   auth-server-url: http://localhost:9072/realms/oauth-train-realm
+
+email:
+  address: samargaiche82@gmail.com
+  support: contact@lms.com
+
+message:
+  mail:
+    verification: Thank you for creating

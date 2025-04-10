@@ -1,6 +1,5 @@
 package com.sncft.train.config;
 
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,15 +17,14 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 public class SecurityConfig {
 
     private final JwtAuthConverter jwtAuthConverter;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
+                .csrf(csrf -> csrf.disable())  // Désactive CSRF pour les API stateless
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/users").permitAll()
-                        .requestMatchers("/api/v1/users/*").permitAll()
-
-                        .anyRequest().authenticated()
+                        .requestMatchers("/verify-email").permitAll()
+                        .requestMatchers("/api/v1/users", "/api/v1/users/*").permitAll()                         .anyRequest().authenticated()  // Nécessite une authentification pour les autres requêtes
                 );
         return http.build();
     }
@@ -47,7 +45,7 @@ public class SecurityConfig {
 
         http
                 .sessionManagement()
-                .sessionCreationPolicy(STATELESS);
+                .sessionCreationPolicy(STATELESS);  // Session stateless pour l'authentification JWT
 
         return http.build();
     }

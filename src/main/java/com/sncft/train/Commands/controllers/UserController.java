@@ -4,6 +4,7 @@ import com.sncft.train.Query.entities.User;
 import com.sncft.train.Query.repos.UserRepository;
 import com.sncft.train.commonApi.commands.CreateUserRequest;
 import com.sncft.train.config.KeycloakAdminProperties;
+import com.sncft.train.configgmail.MailService;
 import jakarta.ws.rs.core.Response;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
@@ -24,6 +25,8 @@ public class UserController {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private MailService mailService;
 
     public UserController(KeycloakAdminProperties keycloakProps) {
         this.keycloak = KeycloakBuilder.builder()
@@ -43,6 +46,7 @@ public class UserController {
         user.setFirstName(request.firstName);
         user.setLastName(request.lastName);
         user.setEmail(request.email);
+
         user.setEnabled(true);
 
         CredentialRepresentation passwordCred = new CredentialRepresentation();
@@ -61,8 +65,15 @@ public class UserController {
         dbUser.setLastName(request.lastName);
         dbUser.setEmail(request.email);
         dbUser.setPassword(request.password);
+        dbUser.setPhoto(request.photo);
 
         userRepository.save(dbUser);
+
+
+        // Envoi de mail
+        String subject = "Bienvenue chez SNCFT 🚆";
+        String body = "Bonjour " + request.firstName + ", votre compte a bien été créé.";
+        mailService.sendTextEmail(request.email, subject, body);
 
         return "Status: " + response.getStatus();
     }
@@ -104,6 +115,9 @@ public class UserController {
                 dbUser.setFirstName(request.firstName);
                 dbUser.setLastName(request.lastName);
                 dbUser.setEmail(request.email);
+                dbUser.setPassword(request.password);
+                dbUser.setPhoto(request.photo);
+
                 userRepository.save(dbUser);
             }
 

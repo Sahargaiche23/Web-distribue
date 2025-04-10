@@ -14,18 +14,34 @@ import lombok.Setter;
 @AllArgsConstructor
 @Table(name = "app_user")
 
+
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long id; // Identifiant unique de l'utilisateur
+
+    @Column(length = 255, nullable = false, unique = true) // Username unique et obligatoire
     private String username;
+
+    @Column(length = 255, nullable = false) // Prénom de l'utilisateur, obligatoire
     private String firstName;
+
+    @Column(length = 255, nullable = false) // Nom de famille de l'utilisateur, obligatoire
     private String lastName;
+
+    @Column(length = 255, nullable = false, unique = true) // Email unique et obligatoire
     private String email;
+
+    @Column(length = 255, nullable = false) // Mot de passe de l'utilisateur, obligatoire
     private String password;
 
-    // Getters and Setters
+    @Column(length = 255) // Photo de l'utilisateur (si nécessaire, cela pourrait être un URL ou chemin de fichier)
+    private String photo;
+
+
+
+    // Getters et Setters
     public Long getId() {
         return id;
     }
@@ -73,5 +89,29 @@ public class User {
     public void setPassword(String password) {
         this.password = password;
     }
-}
 
+    public String getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(String photo) {
+        this.photo = photo;
+    }
+
+
+
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", photo='" + photo + '\'' +
+
+                '}';
+    }
+}

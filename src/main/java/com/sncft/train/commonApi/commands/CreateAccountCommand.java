@@ -22,12 +22,15 @@ public class CreateAccountCommand extends baseCommand<String> {
     @Getter
     @Setter
     private String password;
+    @Getter
+    @Setter
+    private String photo;
 
 
 
 
 
-    public CreateAccountCommand (String id, String username,String firstname, String lastname, String email ,String password)
+    public CreateAccountCommand (String id, String username,String firstname, String lastname, String email ,String password,String photo)
 
     {
         super(id);
@@ -36,6 +39,7 @@ public class CreateAccountCommand extends baseCommand<String> {
         this.lastname=lastname;
         this.email=email;
         this.password=password;
+        this.photo=photo;
 
 
     }

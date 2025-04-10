@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  train-app:
+    image: train-app  # Nom de l'image Docker pour votre application Spring Boot
+    build:
+      context: .  # Le répertoire actuel où le Dockerfile est situé
+      dockerfile: Dockerfile  # Chemin vers le Dockerfile
+    ports:
+      - "8085:8085"  # Mapping du port 8085 du conteneur vers 8085 de l'hôte
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/train  # Utilisation du nom de service pour se connecter à PostgreSQL
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 123
+    depends_on:
+      - db  # Dépendance au service 'db' (PostgreSQL)
+      - eureka  # Dépendance au service 'eureka' (Eureka Server)
+      - keycloak  # Dépendance au service 'keycloak' (Keycloak Server)
+    networks:
+      - app-network  # Connexion au réseau Docker 'app-network'
+
+  db:
+    image: postgres:13  # Utilisation de l'image officielle PostgreSQL version 13
+    container_name: postgres-db  # Nom du conteneur PostgreSQL
+    environment:
+      POSTGRES_USER: postgres  # Nom d'utilisateur pour PostgreSQL
+      POSTGRES_PASSWORD: 123  # Mot de passe pour PostgreSQL
+      POSTGRES_DB: train  # Nom de la base de données
+    ports:
+      - "5432:5432"  # Mapping du port 5432 du conteneur vers 5432 de l'hôte
+    networks:
+      - app-network  # Connexion au réseau Docker 'app-network'
+
+  eureka:
+    image: sahargaiche11/eureka-serveur:latest  # Utilisation de l'image Eureka Server
+    container_name: eureka-server  # Nom du conteneur Eureka
+    ports:
+      - "8761:8761"  # Mapping du port 8761 du conteneur vers 8761 de l'hôte
+    networks:
+      - app-network  # Connexion au réseau Docker 'app-network'
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest  # Utilisation de l'image officielle Keycloak
+    container_name: keycloak-server  # Nom du conteneur Keycloak
+    environment:
+      KEYCLOAK_USER: admin  # Nom d'utilisateur pour Keycloak
+      KEYCLOAK_PASSWORD: admin  # Mot de passe pour Keycloak
+      KEYCLOAK_REALM: oauth-train-realm  # Nom du realm Keycloak
+      KEYCLOAK_IMPORT: /opt/keycloak/realm-config.json  # Importation de la configuration du realm Keycloak
+    ports:
+      - "9072:8080"  # Mapping du port 8080 du conteneur vers 9072 de l'hôte
+    networks:
+      - app-network  # Connexion au réseau Docker 'app-network'
+
+networks:
+  app-network:
+    driver: bridge  # Utilisation du driver 'bridge' pour le réseau Docker
