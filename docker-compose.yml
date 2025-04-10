@@ -1,0 +1,67 @@
+version: "3.9"
+services:
+  annonce:
+    build: .\Annonce
+    image: "annonce-img"
+    container_name: annonce
+    ports:
+      - "8084:8084"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery:8761/eureka
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/annonce?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+    restart: unless-stopped
+    networks:
+      - unihub-network
+    depends_on:
+      - eureka
+      - mysql-db
+
+  eureka:
+    build: .\EurekaD
+    image: "eureka-img"
+    container_name: "eureka"
+    ports:
+      - "8761:8761"
+    hostname: discovery
+    networks:
+      - unihub-network
+
+  gateway:
+    build: .\ApiGateway
+    image: "gateway-img"
+    container_name: "gateway"
+    ports:
+      - "8082:8082"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery:8761/eureka
+      - spring_cloud_gateway_routes[0]_id=annonce
+      - spring_cloud_gateway_routes[0]_uri=http://annonce:8084
+      - spring_cloud_gateway_routes[0]_predicates[0]=Path=/annonce/**
+
+
+
+    networks:
+      - unihub-network
+    depends_on:
+      - eureka
+      - annonce
+
+
+  mysql-db:
+    image: "mysql:5.6"
+    container_name: "mysql-db"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root #indisponsable pour la conteneurisation
+    ports:
+      - "3307:3306"
+    restart: unless-stopped
+    networks:
+      - unihub-network
+
+# Define a custom network with a specific name
+networks:
+  unihub-network:
+    name: unihub-network
+
