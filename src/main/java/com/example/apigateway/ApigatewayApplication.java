@@ -20,11 +20,10 @@ public class ApigatewayApplication {
 	public RouteLocator gatewayRoutes(RouteLocatorBuilder builder){
 
 		return builder.routes()
-				.route("Train", r->r.path("/train/**")
+				.route("Train", r->r.path("/api/v1/users/**")
 						.uri("http://localhost:8085"))
 
-				//.route("Job", r->r.path("/jobs/**")
-						//.uri("http://localhost:8081"))
+
 				.build();
 	}
 	}
