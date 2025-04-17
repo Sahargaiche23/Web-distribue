@@ -36,14 +36,29 @@ public class User {
     @Column(length = 255, nullable = false) // Mot de passe de l'utilisateur, obligatoire
     private String password;
 
-    @Column(length = 255) // Photo de l'utilisateur (si nécessaire, cela pourrait être un URL ou chemin de fichier)
+    @Lob
+    @Column(columnDefinition = "TEXT")
     private String photo;
+    @Column(length = 255, nullable = false) // Mot de passe de l'utilisateur, obligatoire
+
+    private String keycloakUserId;
+
+
+
 
 
 
     // Getters et Setters
     public Long getId() {
         return id;
+    }
+
+    public String getKeycloakUserId() {
+        return keycloakUserId;
+    }
+
+    public void setKeycloakUserId(String keycloakUserId) {
+        this.keycloakUserId = keycloakUserId;
     }
 
     public void setId(Long id) {

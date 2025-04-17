@@ -46,7 +46,6 @@ public class UserController {
         user.setFirstName(request.firstName);
         user.setLastName(request.lastName);
         user.setEmail(request.email);
-
         user.setEnabled(true);
 
         CredentialRepresentation passwordCred = new CredentialRepresentation();
@@ -56,26 +55,34 @@ public class UserController {
 
         user.setCredentials(Collections.singletonList(passwordCred));
 
+        // Création de l'utilisateur dans Keycloak
         Response response = keycloak.realm(realm).users().create(user);
 
-        // Save user in the database
-        User dbUser = new User();
-        dbUser.setUsername(request.username);
-        dbUser.setFirstName(request.firstName);
-        dbUser.setLastName(request.lastName);
-        dbUser.setEmail(request.email);
-        dbUser.setPassword(request.password);
-        dbUser.setPhoto(request.photo);
+        if (response.getStatus() == 201) {  // L'utilisateur a été créé avec succès
+            // Récupérer l'ID de l'utilisateur créé dans Keycloak
+            String keycloakUserId = response.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
 
-        userRepository.save(dbUser);
+            // Save user in the database with the same ID as Keycloak
+            User dbUser = new User();
+            dbUser.setUsername(request.username);
+            dbUser.setFirstName(request.firstName);
+            dbUser.setLastName(request.lastName);
+            dbUser.setEmail(request.email);
+            dbUser.setPassword(request.password);
+            dbUser.setPhoto(request.photo);
+            dbUser.setKeycloakUserId(keycloakUserId);  // Stocker l'ID de Keycloak
 
+            userRepository.save(dbUser);
 
-        // Envoi de mail
-        String subject = "Bienvenue chez SNCFT 🚆";
-        String body = "Bonjour " + request.firstName + ", votre compte a bien été créé.";
-        mailService.sendTextEmail(request.email, subject, body);
+            // Envoi de mail
+            String subject = "Bienvenue chez SNCFT 🚆";
+            String body = "Bonjour " + request.firstName + ", votre compte a bien été créé.";
+            mailService.sendTextEmail(request.email, subject, body);
 
-        return "Status: " + response.getStatus();
+            return "User created successfully with Keycloak ID: " + keycloakUserId;
+        } else {
+            return "Failed to create user in Keycloak. Status: " + response.getStatus();
+        }
     }
 
     @PostMapping("/login")
@@ -102,43 +109,69 @@ public class UserController {
     @PutMapping("/{userId}")
     public String updateUser(@PathVariable String userId, @RequestBody CreateUserRequest request) {
         try {
-            UserRepresentation user = keycloak.realm(realm).users().get(userId).toRepresentation();
+            // Vérifier si l'utilisateur existe dans Keycloak
+            UserRepresentation userRepresentation = null;
+            try {
+                userRepresentation = keycloak.realm(realm).users().get(userId).toRepresentation();
+            } catch (Exception e) {
+                return "Update failed: User not found in Keycloak.";
+            }
 
-            user.setFirstName(request.firstName);
-            user.setLastName(request.lastName);
-            user.setEmail(request.email);
+            if (userRepresentation == null) {
+                return "Update failed: User not found in Keycloak.";
+            }
 
-            keycloak.realm(realm).users().get(userId).update(user);
+            // Mise à jour des informations dans Keycloak
+            userRepresentation.setFirstName(request.firstName);
+            userRepresentation.setLastName(request.lastName);
+            userRepresentation.setEmail(request.email);
 
+            // Mettre à jour l'utilisateur dans Keycloak
+            keycloak.realm(realm).users().get(userId).update(userRepresentation);
+
+            // Mise à jour dans la base de données
             User dbUser = userRepository.findById(Long.valueOf(userId)).orElse(null);
             if (dbUser != null) {
                 dbUser.setFirstName(request.firstName);
                 dbUser.setLastName(request.lastName);
                 dbUser.setEmail(request.email);
-                dbUser.setPassword(request.password);
+                dbUser.setPassword(request.password);  // Gérer le mot de passe de manière sécurisée si nécessaire
                 dbUser.setPhoto(request.photo);
 
                 userRepository.save(dbUser);
+                return "User updated successfully.";
+            } else {
+                return "Update failed: User not found in the database.";
             }
-
-            return "User updated successfully.";
         } catch (Exception e) {
             return "Update failed: " + e.getMessage();
         }
     }
+
     @DeleteMapping("/{userId}")
     public String deleteUser(@PathVariable String userId) {
         try {
-            // Delete from Keycloak
-            keycloak.realm(realm).users().get(userId).remove();
+            // Vérification si l'utilisateur existe dans Keycloak
+            boolean userExistsInKeycloak = keycloak.realm(realm).users().get(userId).toRepresentation() != null;
+            if (userExistsInKeycloak) {
+                // Suppression de l'utilisateur dans Keycloak
+                keycloak.realm(realm).users().get(userId).remove();
 
-            // Delete from DB
-            userRepository.deleteById(Long.valueOf(userId));
+                // Suppression de l'utilisateur dans la base de données
+                userRepository.deleteById(Long.valueOf(userId));
 
-            return "User deleted successfully.";
+                return "User deleted successfully.";
+            } else {
+                return "User not found in Keycloak.";
+            }
         } catch (Exception e) {
             return "Deletion failed: " + e.getMessage();
         }
+    }
+
+    @GetMapping("/test")
+    public String test() {
+        return "User service is working ApiGetway!";
     }
 
 }

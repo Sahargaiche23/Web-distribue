@@ -73,7 +73,7 @@ jwt:
 
 keycloak:
   client-id: sahar
-  client-secret: 6PrXXVPSZZtDdUQE7REd1S3JZ4PMhZsM
+  client-secret: OZFcXNZcEhsMgYfQf8eATx4HhKX3b7gm
   auth-server-url: http://localhost:9072/realms/oauth-train-realm
 
 email:
