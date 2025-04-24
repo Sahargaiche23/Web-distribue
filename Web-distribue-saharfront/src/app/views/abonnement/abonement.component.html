@@ -1,0 +1,144 @@
+<style>
+  .contact-form {
+    background: #fff;
+    margin-top: 5%;
+    margin-bottom: 5%;
+    width: 70%;
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .contact-image {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  .custom-edit {
+  background-color: #ffc107; /* jaune doré */
+  color: #000;
+  border: none;
+  padding: 7px;
+}
+
+.custom-edit:hover {
+  background-color: #e0a800;
+}
+
+.custom-delete {
+  background-color: #dc3545; /* rouge vif */
+  color: #fff;
+  border: none;
+  padding: 7px;
+}
+
+.custom-delete:hover {
+  background-color: #c82333;
+}
+
+
+  .contact-image img {
+    border-radius: 6rem;
+    width: 11%;
+    margin-top: -3%;
+    transform: rotate(29deg);
+  }
+
+  .contact-form form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #333;
+  }
+
+  .contact-form form input,
+  .contact-form form select {
+    width: 100%;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    margin-bottom: 1rem;
+  }
+
+  .contact-form form .submit-button {
+    width: 100%;
+    border: none;
+    border-radius: 1rem;
+    padding: 1rem;
+    background: #0062cc;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+
+  .contact-form form .submit-button:hover {
+    background: #004799;
+  }
+
+  .abonnement-list {
+    margin-top: 3rem;
+  }
+
+  .abonnement-item {
+    background-color: #f8f9fa;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 0 5px rgba(0,0,0,0.05);
+  }
+
+  .abonnement-actions button {
+    margin-right: 1rem;
+  }
+</style>
+
+<div class="container contact-form">
+  <div class="contact-image">
+    <img src="https://image.ibb.co/kUagtU/rocket_contact.png" alt="rocket_contact" />
+  </div>
+
+  <form [formGroup]="abonnementForm" (ngSubmit)="abonnementId ? updateAbonnement() : createAbonnement()">
+    <h1 class="text-center mb-4">{{ abonnementId ? 'Modifier un abonnement' : 'Créer un abonnement' }}</h1>
+
+    <label for="userEmail">Email utilisateur:</label>
+    <input type="email" id="userEmail" formControlName="userEmail" placeholder="exemple@email.com" required>
+
+    <label for="plan">Plan:</label>
+    <select id="plan" formControlName="plan" required>
+      <option value="">-- Choisir un plan --</option>
+      <option value="FREE">Gratuit</option>
+      <option value="STANDARD">Standard</option>
+      <option value="PREMIUM">Premium</option>
+    </select>
+
+    <label>
+      <input type="checkbox" id="active" formControlName="active"> Actif
+    </label>
+
+    <label for="startDate">Date de début:</label>
+    <input type="date" id="startDate" formControlName="startDate" required>
+
+    <label for="endDate">Date de fin:</label>
+    <input type="date" id="endDate" formControlName="endDate" required>
+
+    <button type="submit" class="submit-button">
+      {{ abonnementId ? 'Mettre à jour' : 'Créer' }}
+    </button>
+  </form>
+
+  <!-- Liste des abonnements -->
+  <div class="abonnement-list">
+    <h2>Liste des abonnements</h2>
+    <div *ngFor="let abonnement of abonnements" class="abonnement-item">
+      <p><strong>Email:</strong> {{ abonnement.userEmail }}</p>
+      <p><strong>Plan:</strong> {{ abonnement.plan }}</p>
+      <p><strong>Actif:</strong> {{ abonnement.active ? 'Oui' : 'Non' }}</p>
+      <p><strong>Début:</strong> {{ abonnement.startDate }}</p>
+      <p><strong>Fin:</strong> {{ abonnement.endDate }}</p>
+      <div class="abonnement-actions">
+        <button class="btn btn-primary custom-edit" (click)="editAbonnement(abonnement)">Modifier</button>
+        <button class="btn btn-danger custom-delete" (click)="deleteAbonnement(abonnement.id)">Supprimer</button>
+      </div>
+      
+    </div>
+  </div>
+</div>

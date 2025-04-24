@@ -1,0 +1,199 @@
+<!-- CSS for Modal -->
+<style>
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+
+  .modal-content {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    width: 50%;
+    max-width: 600px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    position: relative;
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .modal-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+  }
+
+  .close-button {
+    background: none;
+    border: none;
+    font-size: 30px;
+    color: #999;
+    cursor: pointer;
+  }
+
+  .close-button:hover {
+    color: #000;
+  }
+
+  .modal-form .form-group {
+    margin-bottom: 15px;
+  }
+
+  .modal-form label {
+    font-weight: bold;
+    color: #333;
+  }
+
+  .modal-form .form-control {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    margin-top: 5px;
+  }
+
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .modal-footer .btn {
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  .btn-primary {
+    background-color: #007bff;
+    color: white;
+    border: none;
+  }
+
+  .btn-primary:hover {
+    background-color: #0056b3;
+  }
+
+  .btn-secondary {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+  }
+
+  .btn-secondary:hover {
+    background-color: #5a6268;
+  }
+</style>
+
+<div class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded"
+     [ngClass]="color === 'light' ? 'bg-white' : 'bg-red-900 text-white'">
+  <div class="rounded-t mb-0 px-4 py-3 border-0">
+    <div class="flex flex-wrap items-center justify-between">
+      <h3 class="font-semibold text-lg"
+          [ngClass]="color === 'light' ? 'text-blueGray-700' : 'text-white'">
+        Liste des annonces    <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" (click)="openModal('add')">
+          Ajouter Annonce
+        </button>
+      </h3>
+   
+    </div>
+  </div>
+
+  <div class="block w-full overflow-x-auto">
+    <table class="items-center w-full bg-transparent border-collapse">
+      <thead>
+        <tr>
+          <th class="px-6 py-3 text-xs uppercase font-semibold text-left" *ngFor="let head of headers"
+              [ngClass]="color === 'light' ? 'bg-blueGray-50 text-blueGray-500' : 'bg-red-800 text-red-300'">
+            {{ head }}
+          </th>
+          <th class="px-6 py-3 text-xs uppercase font-semibold text-left"
+              [ngClass]="color === 'light' ? 'bg-blueGray-50 text-blueGray-500' : 'bg-red-800 text-red-300'">
+            Actions
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let annonce of trajets">
+          <td class="px-6 py-4 text-sm">{{ annonce.titreAnnonce }}</td>
+          <td class="px-6 py-4 text-sm">{{ annonce.contenuAnnonce }}</td>
+          <td class="px-6 py-4 text-sm">{{ annonce.typeAnnonce }}</td>
+          <td class="px-6 py-4 text-sm">{{ annonce.auteurAnnonce }}</td>
+          <td class="px-6 py-4 text-sm">{{ annonce.datePublication | date:'short' }}</td>
+          <td class="px-6 py-4 text-sm">{{ annonce.lieuDepart }}</td>
+          <td class="px-6 py-4 text-sm">{{ annonce.heureDepart }}</td>
+          <td class="px-6 py-4 text-sm">{{ annonce.lieuArrivee }}</td>
+          <td class="px-6 py-4 text-sm">{{ annonce.heureArrivee }}</td>
+          <td class="px-6 py-4 text-sm">{{ annonce.prixTicket }}</td>
+          <td class="px-6 py-4 text-sm">{{ annonce.nombrePlaces }}</td>
+          <td class="px-6 py-4 text-sm">
+            <img src="assets/img/train (2).jpg" alt="Train Photo" class="h-12 w-auto rounded" />
+          </td>
+          <td class="px-6 py-4 text-sm space-x-2">
+            <button class="bg-yellow-500 text-white px-2 py-1 rounded" (click)="openModal('edit', annonce)">Modifier</button>
+            <button class="bg-red-600 text-white px-2 py-1 rounded" (click)="deleteAnnonce(annonce.id)">Supprimer</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<!-- app-annonce-modal.component.html -->
+<div class="modal" *ngIf="showModal">
+  <div class="modal-content">
+    <span class="close" (click)="closeModal(false)">×</span>
+    <h2>Annonce</h2>
+
+    <form (ngSubmit)="submitForm()" [formGroup]="annonceForm">
+      <div class="form-group">
+        <label for="titreAnnonce">Titre</label>
+        <input id="titreAnnonce" formControlName="titreAnnonce" class="form-control" />
+      </div>
+
+      <div class="form-group">
+        <label for="contenuAnnonce">Contenu</label>
+        <textarea id="contenuAnnonce" formControlName="contenuAnnonce" class="form-control"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="typeAnnonce">Type</label>
+        <input id="typeAnnonce" formControlName="typeAnnonce" class="form-control" />
+      </div>
+
+      <div class="form-group">
+        <label for="prixTicket">Prix du Ticket</label>
+        <input id="prixTicket" type="number" formControlName="prixTicket" class="form-control" />
+      </div>
+
+      <div class="form-group">
+        <label for="nombrePlaces">Nombre de Places</label>
+        <input id="nombrePlaces" type="number" formControlName="nombrePlaces" class="form-control" />
+      </div>
+
+      <div class="form-group">
+        <label for="file">Image</label>
+        <input type="file" (change)="onFileSelected($event)" />
+      </div>
+
+      <button type="submit" class="btn btn-primary">
+        {{ modalMode === 'add' ? 'Ajouter' : 'Modifier' }}
+      </button>
+    </form>
+  </div>
+</div>

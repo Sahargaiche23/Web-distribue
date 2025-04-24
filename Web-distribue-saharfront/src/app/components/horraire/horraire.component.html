@@ -1,0 +1,98 @@
+<style>
+    .train-schedule {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    max-width: 1200px;
+    margin: 112px auto;}
+
+.train-item {
+    border: 1px solid #ccc;
+    padding: 15px;
+    text-align: center;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.train-item img {
+    max-width: 100%;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+.reserve-button {
+    background-color: red;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.modal {
+  display: block;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+</style>
+<div class="train-schedule">
+  <div *ngFor="let annonce of annonces" class="train-item">
+    <img src="assets/img/train (2).jpg" alt="Train Photo">
+    <h3>Départ: {{ annonce.lieuDepart }}</h3>
+    <p>Heure de Départ: {{ annonce.heureDepart }}</p>
+    <h3>Arrivée: {{ annonce.lieuArrivee }}</h3>
+    <p>Heure d'Arrivée: {{ annonce.heureArrivee }}</p>
+    <p>Prix du Ticket: {{ annonce.prixTicket }}</p>
+    <p>Places Disponibles: {{ annonce.nombrePlaces }}</p>
+    <button class="reserve-button" (click)="openReservationModal(annonce)">Réserver</button>
+
+    <!-- Modal -->
+    <div *ngIf="selectedAnnonce?.id === annonce.id" class="modal">
+      <div class="modal-content">
+        <span class="close" (click)="closeReservationModal()">&times;</span>
+        <h2>Réserver des places</h2>
+        <p>Lieu de Départ: {{ selectedAnnonce.lieuDepart }}</p>
+        <p>Lieu d'Arrivée: {{ selectedAnnonce.lieuArrivee }}</p>
+        <p>Prix: {{ selectedAnnonce.prixTicket }}</p>
+
+        <form (ngSubmit)="reserve()" #form="ngForm">
+          <label for="nombrePlaces">Nombre de places:</label>
+          <input type="number" id="nombrePlaces" name="nombrePlaces"
+                 [(ngModel)]="reservationData.nombrePlaces" required (change)="calculateTotalPrice()">
+          <p>Total: {{ totalPrice }} dt</p>
+          <button type="submit">Réserver</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+  
